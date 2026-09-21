@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Impossible Sheriff</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --hazard-yellow: #f9c74f;
+      --hazard-red: #d90429;
+      --hazard-black: #1a1a1a;
+      --rust: #6c3b1e;
+      --bg: #121316;
+      --card-bg: #1e2025;
+      --text: #f0f2f5;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      background: radial-gradient(circle at center, #26211c 0%, var(--bg) 100%);
+      color: var(--text);
+      font-family: 'Rubik', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* Caution Stripe Border Header */
+    header {
+      max-width: 960px;
+      margin: 0 auto 16px auto;
+      background: var(--card-bg);
+      border: 4px solid var(--hazard-yellow);
+      border-radius: 20px;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 0 25px rgba(249, 199, 79, 0.25);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .hazard-badge {
+      width: 50px;
+      height: 50px;
+      background: var(--hazard-yellow);
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 4px;
+      color: #000;
+      font-family: 'Bungee', cursive;
+      font-size: 26px;
+      font-weight: 900;
+      border: 2px solid #000;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: 'Bungee', cursive;
+      font-size: 26px;
+      color: var(--hazard-yellow);
+      letter-spacing: 1px;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #b0b4be;
+      font-weight: 600;
+      margin-top: 3px;
+    }
+
+    /* Scoreboard */
+    .score-box {
+      background: #0f1013;
+      border: 2px solid #3a3d45;
+      border-radius: 12px;
+      padding: 8px 18px;
+      text-align: right;
+    }
+
+    .score-num {
+      font-family: 'Bungee', cursive;
+      font-size: 22px;
+      color: var(--hazard-yellow);
+    }
+
+    /* Main Container */
+    .main-grid {
+      max-width: 960px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 820px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Boss Visual Card */
+    .boss-card {
+      background: var(--card-bg);
+      border: 3px solid #3a3d45;
+      border-radius: 24px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .sheriff-img-wrap {
+      width: 100%;
+      height: 290px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .sheriff-img {
+      max-height: 280px;
+      max-width: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 20px rgba(0,0,0,0.7));
+      animation: sheriffTremble 3s infinite ease-in-out alternate;
+    }
+
+    @keyframes sheriffTremble {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-4px) rotate(1deg); }
+      100% { transform: translateY(0) rotate(-1deg); }
+    }
+
+    .hit-anim {
+      animation: getHit 0.3s ease !important;
+    }
+
+    @keyframes getHit {
+      0% { filter: invert(0.8) hue-rotate(180deg); transform: scale(0.92); }
+      100% { filter: drop-shadow(0 12px 20px rgba(0,0,0,0.7)); transform: scale(1); }
+    }
+
+    .boss-hp-bar {
+      width: 100%;
+      height: 18px;
+      background: #0d0e12;
+      border-radius: 10px;
+      border: 2px solid var(--hazard-red);
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .boss-hp-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #ff0055, var(--hazard-red));
+      transition: width 0.3s ease;
+    }
+
+    /* Control Panel */
+    .arena-panel {
+      background: var(--card-bg);
+      border: 3px solid #3a3d45;
+      border-radius: 24px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .mode-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .chip-btn {
+      background: #111317;
+      border: 2px solid #333742;
+      color: #9aa0ad;
+      padding: 7px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-btn.active {
+      border-color: var(--hazard-yellow);
+      color: #000;
+      background: var(--hazard-yellow);
+    }
+
+    .question-screen {
+      background: #0f1013;
+      border: 3px dashed #3a3d45;
+      border-radius: 20px;
+      padding: 26px 16px;
+      text-align: center;
+      margin: 12px 0;
+    }
+
+    .round-meta {
+      font-family: 'Bungee', cursive;
+      font-size: 13px;
+      color: #e09f3e;
+      letter-spacing: 1px;
+    }
+
+    .sum-text {
+      font-family: 'Bungee', cursive;
+      font-size: 42px;
+      color: #ffffff;
+      margin: 10px 0;
+      letter-spacing: 2px;
+    }
+
+    .input-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .math-in {
+      width: 130px;
+      font-family: 'Bungee', cursive;
+      font-size: 28px;
+      text-align: center;
+      padding: 6px;
+      background: #191b22;
+      border: 3px solid var(--hazard-yellow);
+      border-radius: 12px;
+      color: #fff;
+      outline: none;
+    }
+
+    .btn-attack {
+      background: var(--hazard-red);
+      color: #fff;
+      border: 2px solid #ff4d6d;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-family: 'Bungee', cursive;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #850019;
+    }
+
+    .btn-attack:active {
+      transform: translateY(4px);
+      box-shadow: none;
+    }
+
+    .feedback {
+      min-height: 24px;
+      font-size: 15px;
+      font-weight: 800;
+      margin-top: 10px;
+    }
+
+    .feedback.good { color: #52b788; }
+    .feedback.bad { color: #ff4d6d; }
+
+    /* Eye Exercises Modal Screen */
+    .eye-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 15, 0.9);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .eye-modal.active {
+      display: flex;
+    }
+
+    .eye-box {
+      background: #181a20;
+      border: 3px solid var(--hazard-yellow);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 600px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .eye-canvas {
+      height: 220px;
+      background: #0c0d11;
+      border-radius: 16px;
+      margin: 16px 0;
+      position: relative;
+      overflow: hidden;
+      border: 2px dashed #444;
+    }
+
+    .target-eye-dot {
+      width: 36px;
+      height: 36px;
+      background: var(--hazard-yellow);
+      border-radius: 50%;
+      position: absolute;
+      box-shadow: 0 0 15px var(--hazard-yellow);
+      animation: eyeTrack 5s infinite alternate ease-in-out;
+    }
+
+    @keyframes eyeTrack {
+      0% { top: 15%; left: 10%; }
+      25% { top: 70%; left: 30%; }
+      50% { top: 20%; left: 80%; }
+      75% { top: 75%; left: 85%; }
+      100% { top: 40%; left: 50%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-group">
+      <div class="hazard-badge">!</div>
+      <div>
+        <h1>THE IMPOSSIBLE SHERIFF</h1>
+        <div class="subtitle">By Rowan &amp; Seb &bull; Math Battle vs The Hazard Boss</div>
+      </div>
+    </div>
+    <div class="score-box">
+      <div style="font-size: 11px; color:#888; font-weight:800;">TARGET: 100 / 1000</div>
+      <div class="score-num" id="scoreDisplay">0 PTS</div>
+    </div>
+  </header>
+
+  <div class="main-grid">
+    <!-- The Sheriff Visual -->
+    <div class="boss-card">
+      <div class="sheriff-img-wrap">
+        <!-- Renders the generated caution triangle boss directly -->
+        <img id="bossSprite" src="image_14.png" alt="The Impossible Sheriff" class="sheriff-img">
+      </div>
+      <h3 style="margin: 8px 0 0 0; font-family: 'Bungee', cursive; color: var(--hazard-yellow); font-size: 18px;">
+        SHERIFF WARNING-HEAD
+      </h3>
+      <div class="boss-hp-bar">
+        <div class="boss-hp-fill" id="hpBar"></div>
+      </div>
+      <div style="font-size: 12px; color: #ff6b6b; font-weight: 800; margin-top: 6px;" id="hpText">
+        BOSS HP: 100 / 100
+      </div>
+      <button class="chip-btn" style="margin-top: 14px; width: 100%; border-color: #555;" onclick="openEyeWorkout()">
+        👁️ Run Eye Exercises
+      </button>
+    </div>
+
+    <!-- Battle Arena Panel -->
+    <div class="arena-panel">
+      <div>
+        <!-- Mode: 1 vs 1 or All vs Boss -->
+        <div style="font-size: 11px; color: #888; font-weight: 800; margin-bottom: 4px;">BATTLE SETUP:</div>
+        <div class="mode-bar">
+          <button class="chip-btn active" id="btn-mode-1" onclick="setMode('1v1')">1 vs 1</button>
+          <button class="chip-btn" id="btn-mode-all" onclick="setMode('all')">All vs Boss</button>
+        </div>
+
+        <!-- Operations (+, -, x, ÷) -->
+        <div style="font-size: 11px; color: #888; font-weight: 800; margin-bottom: 4px;">OPERATION:</div>
+        <div class="mode-bar">
+          <button class="chip-btn active" id="op-add" onclick="setOp('+')">+</button>
+          <button class="chip-btn" id="op-sub" onclick="setOp('-')">-</button>
+          <button class="chip-btn" id="op-mul" onclick="setOp('×')">×</button>
+          <button class="chip-btn" id="op-div" onclick="setOp('÷')">÷</button>
+        </div>
+
+        <!-- Difficulty: Hard (5 Q's), Med (10 Q's), Easy (20 Q's) -->
+        <div style="font-size: 11px; color: #888; font-weight: 800; margin-bottom: 4px;">DIFFICULTY ROUNDS:</div>
+        <div class="mode-bar">
+          <button class="chip-btn active" id="diff-h" onclick="setDiff('hard')">Hard (5 Q's)</button>
+          <button class="chip-btn" id="diff-m" onclick="setDiff('med')">Medium (10 Q's)</button>
+          <button class="chip-btn" id="diff-e" onclick="setDiff('easy')">Easy (20 Q's)</button>
+        </div>
+      </div>
+
+      <!-- Question Box -->
+      <div class="question-screen">
+        <div class="round-meta" id="roundInfo">QUESTION 1 OF 5</div>
+        <div class="sum-text" id="equationText">25 + 25 = ?</div>
+        
+        <div class="input-row">
+          <input type="number" id="mathInput" class="math-in" autocomplete="off" placeholder="?">
+          <button class="btn-attack" onclick="attackSheriff()">ATTACK!</button>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+      </div>
+
+      <div style="font-size: 12px; color: #777; text-align: center; font-weight: 700;">
+        Solve the math correctly to blast the Sheriff before you run out of questions!
+      </div>
+    </div>
+  </div>
+
+  <!-- Eye Exercises Modal (Box 3 in worksheet) -->
+  <div class="eye-modal" id="eyeModal">
+    <div class="eye-box">
+      <h2 style="font-family:'Bungee'; color:var(--hazard-yellow); margin:0;">EYE EXERCISES</h2>
+      <p style="color:#aaa; font-size:14px; margin:6px 0 0 0;">Keep your head still and follow the caution orb with your eyes!</p>
+      
+      <div class="eye-canvas">
+        <div class="target-eye-dot"></div>
+      </div>
+
+      <button class="chip-btn active" style="padding:10px 24px;" onclick="closeEyeWorkout()">Back to Boss Battle</button>
+    </div>
+  </div>
+
+  <script>
+    let score = 0;
+    let bossHp = 100;
+    const maxBossHp = 100;
+    let currentOp = '+';
+    let totalQuestions = 5;
+    let currentQIndex = 1;
+    let expectedAnswer = 0;
+
+    function setMode(mode) {
+      document.getElementById('btn-mode-1').classList.toggle('active', mode === '1v1');
+      document.getElementById('btn-mode-all').classList.toggle('active', mode === 'all');
+    }
+
+    function setOp(op) {
+      currentOp = op;
+      document.getElementById('op-add').classList.toggle('active', op === '+');
+      document.getElementById('op-sub').classList.toggle('active', op === '-');
+      document.getElementById('op-mul').classList.toggle('active', op === '×');
+      document.getElementById('op-div').classList.toggle('active', op === '÷');
+      generateQuestion();
+    }
+
+    function setDiff(level) {
+      document.getElementById('diff-h').classList.toggle('active', level === 'hard');
+      document.getElementById('diff-m').classList.toggle('active', level === 'med');
+      document.getElementById('diff-e').classList.toggle('active', level === 'easy');
+
+      if (level === 'hard') totalQuestions = 5;
+      else if (level === 'med') totalQuestions = 10;
+      else totalQuestions = 20;
+
+      currentQIndex = 1;
+      generateQuestion();
+    }
+
+    function generateQuestion() {
+      let a, b;
+
+      if (currentOp === '+') {
+        a = Math.floor(Math.random() * 45) + 15;
+        b = Math.floor(Math.random() * 45) + 10;
+        expectedAnswer = a + b;
+        document.getElementById('equationText').textContent = `${a} + ${b} = ?`;
+      } else if (currentOp === '-') {
+        a = Math.floor(Math.random() * 60) + 30;
+        b = Math.floor(Math.random() * (a - 10)) + 5;
+        expectedAnswer = a - b;
+        document.getElementById('equationText').textContent = `${a} - ${b} = ?`;
+      } else if (currentOp === '×') {
+        a = Math.floor(Math.random() * 9) + 2;
+        b = Math.floor(Math.random() * 9) + 2;
+        expectedAnswer = a * b;
+        document.getElementById('equationText').textContent = `${a} × ${b} = ?`;
+      } else { // Division
+        b = Math.floor(Math.random() * 8) + 2;
+        expectedAnswer = Math.floor(Math.random() * 8) + 2;
+        a = b * expectedAnswer;
+        document.getElementById('equationText').textContent = `${a} ÷ ${b} = ?`;
+      }
+
+      document.getElementById('roundInfo').textContent = `QUESTION ${currentQIndex} OF ${totalQuestions}`;
+      document.getElementById('mathInput').value = '';
+      document.getElementById('mathInput').focus();
+    }
+
+    function attackSheriff() {
+      const val = parseInt(document.getElementById('mathInput').value, 10);
+      const fb = document.getElementById('feedback');
+      const sprite = document.getElementById('bossSprite');
+
+      if (isNaN(val)) return;
+
+      if (val === expectedAnswer) {
+        score += 20;
+        const damage = Math.ceil(maxBossHp / totalQuestions);
+        bossHp = Math.max(0, bossHp - damage);
+
+        document.getElementById('scoreDisplay').textContent = `${score} PTS`;
+        document.getElementById('hpBar').style.width = `${(bossHp / maxBossHp) * 100}%`;
+        document.getElementById('hpText').textContent = `BOSS HP: ${bossHp} / ${maxBossHp}`;
+
+        sprite.classList.add('hit-anim');
+        setTimeout(() => sprite.classList.remove('hit-anim'), 350);
+
+        fb.className = 'feedback good';
+        fb.textContent = `HIT! You dealt ${damage} DMG to the Sheriff!`;
+
+        if (bossHp <= 0) {
+          fb.textContent = '🎉 THE IMPOSSIBLE SHERIFF HAS BEEN DEFEATED! 🎉';
+          return;
+        }
+      } else {
+        fb.className = 'feedback bad';
+        fb.textContent = `MISS! Sheriff blocked the attack! (Answer: ${expectedAnswer})`;
+      }
+
+      if (currentQIndex < totalQuestions) {
+        currentQIndex++;
+        setTimeout(generateQuestion, 900);
+      } else {
+        setTimeout(() => {
+          if (bossHp > 0) {
+            fb.className = 'feedback bad';
+            fb.textContent = `Out of questions! The Sheriff got away with ${bossHp} HP!`;
+          }
+        }, 800);
+      }
+    }
+
+    function openEyeWorkout() {
+      document.getElementById('eyeModal').classList.add('active');
+    }
+
+    function closeEyeWorkout() {
+      document.getElementById('eyeModal').classList.remove('active');
+    }
+
+    document.getElementById('mathInput').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') attackSheriff();
+    });
+
+    generateQuestion();
+  </script>
+</body>
+</html>
